@@ -1,4 +1,5 @@
 import { normalizeVNode } from "./normalizeVNode";
+import { addEvent } from "./eventManager";
 
 export function createElement(vNode) {
   // 컴포넌트 타입 체크 (정규화 전에 먼저 체크)
@@ -28,6 +29,13 @@ export function createElement(vNode) {
 
   // 속성 업데이트
   updateAttributes($el, vNode.props);
+
+  // 이벤트 속성 처리
+  Object.entries(vNode.props || {}).forEach(([key, value]) => {
+    if (key.startsWith("on")) {
+      addEvent($el, key.toLowerCase().slice(2), value);
+    }
+  });
 
   // 자식 요소들을 재귀적으로 생성하고 추가
   vNode.children?.forEach((child) => {
