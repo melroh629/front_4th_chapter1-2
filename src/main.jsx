@@ -1,6 +1,6 @@
 /** @jsx createVNode */
 import { createRouter, createVNode } from "./lib";
-import { HomePage, LoginPage, ProfilePage } from "./pages";
+import { HomePage, LoginPage, ProfilePage, TestPage } from "./pages";
 import { globalStore } from "./stores";
 import { ForbiddenError, UnauthorizedError } from "./errors";
 import { router } from "./router";
@@ -22,6 +22,9 @@ router.set(
         throw new UnauthorizedError();
       }
       return <ProfilePage />;
+    },
+    "/test": () => {
+      return <TestPage />;
     },
   }),
 );
