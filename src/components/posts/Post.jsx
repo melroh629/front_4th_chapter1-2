@@ -5,16 +5,16 @@ import { globalStore } from "../../stores";
 import { toTimeFormat } from "../../utils/index.js";
 
 export const Post = ({ author, time, content, likeUsers, id }) => {
-  const { loggedIn, posts } = globalStore.getState();
-  const activationLike = likeUsers.includes(
-    globalStore.getState().currentUser.username,
-  );
-  const handleLike = (id) => {
+  const { loggedIn, posts, currentUser } = globalStore.getState();
+  const activationLike =
+    currentUser && likeUsers.includes(currentUser.username);
+
+  const handleLike = () => {
     if (!loggedIn) {
       alert("로그인 후 이용해주세요");
     } else {
       const post = posts.find((post) => post.id === id);
-      const currentUsername = globalStore.getState().currentUser.username;
+      const currentUsername = currentUser.username;
       const likeUserIndex = post.likeUsers.indexOf(currentUsername);
 
       if (likeUserIndex === -1) {
@@ -26,6 +26,7 @@ export const Post = ({ author, time, content, likeUsers, id }) => {
       globalStore.setState({ posts });
     }
   };
+
   return (
     <div className="bg-white rounded-lg shadow p-4 mb-4">
       <div className="flex items-center mb-2">
@@ -37,7 +38,7 @@ export const Post = ({ author, time, content, likeUsers, id }) => {
       <p>{content}</p>
       <div className="mt-2 flex justify-between text-gray-500">
         <span
-          onClick={() => handleLike(id)}
+          onClick={handleLike}
           className={`like-button cursor-pointer${activationLike ? " text-blue-500" : ""}`}
         >
           좋아요 {likeUsers.length}
