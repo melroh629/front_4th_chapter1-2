@@ -31,14 +31,16 @@ export function normalizeVNode(vNode) {
     return "";
   }
 
-  // 6. 객체(vNode) 처리
-  const normalizedNode = { ...vNode };
-
-  if (Array.isArray(normalizedNode.children)) {
-    normalizedNode.children = normalizedNode.children
+  // 6. children 배열처리
+  if (Array.isArray(vNode.children)) {
+    const normalizedChildren = vNode.children
       .map((child) => normalizeVNode(child))
       .filter((child) => child !== "" && child != null && child !== false);
-  }
 
-  return normalizedNode;
+    return {
+      ...vNode,
+      children: normalizedChildren,
+    };
+  }
+  return vNode;
 }
