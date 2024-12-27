@@ -3,47 +3,61 @@ import { createElement } from "./createElement.js";
 
 function updateAttributes(target, newProps = {}, oldProps = {}) {
   // null이나 undefined인 경우 빈 객체로 처리
-  oldProps = oldProps || {};
-
   newProps = newProps || {};
+  oldProps = oldProps || {};
+  // 1. HTML 속성 이름 변환 함수
+  function getHtmlAttrName(key) {
+    if (key === "className") return "class";
+    if (key === "htmlFor") return "for";
+    return key;
+  }
 
-  // 이전 속성 제거
+  // 2. 이벤트 처리 함수
+  function handleEvent(target, eventName, newHandler, oldHandler) {
+    // 이벤트 이름 변환 (예: onClick -> click)
+    const eventType = eventName.slice(2).toLowerCase();
+
+    // 이전 이벤트 제거
+    if (oldHandler) {
+      removeEvent(target, eventType, oldHandler);
+    }
+
+    // 새 이벤트 추가
+    if (newHandler) {
+      addEvent(target, eventType, newHandler);
+    }
+  }
+
+  // 3. 이전 속성 제거
   Object.keys(oldProps).forEach((key) => {
-    if (key === "className") {
-      if (!(key in newProps)) {
-        target.removeAttribute("class");
-      }
-    } else if (key === "htmlFor") {
-      if (!(key in newProps)) {
-        target.removeAttribute("for");
-      }
-    } else if (key.startsWith("on")) {
-      if (!(key in newProps)) {
-        removeEvent(target, key.toLowerCase().slice(2), oldProps[key]);
-      }
-    } else {
-      if (!(key in newProps)) {
-        target.removeAttribute(key);
-      }
+    // 새 속성에 있으면 건너뛰기
+    if (key in newProps) return;
+
+    // 이벤트 처리
+    if (key.startsWith("on")) {
+      handleEvent(target, key, null, oldProps[key]);
+    }
+    // 일반 속성 처리
+    else {
+      target.removeAttribute(getHtmlAttrName(key));
     }
   });
 
-  // 새로운 속성 추가/업데이트
-  Object.entries(newProps).forEach(([key, value]) => {
-    if (key === "className") {
-      target.setAttribute("class", value);
-    } else if (key === "htmlFor") {
-      target.setAttribute("for", value);
-    } else if (key.startsWith("on")) {
-      const eventType = key.toLowerCase().slice(2);
-      if (oldProps[key] !== value) {
-        if (oldProps[key]) {
-          removeEvent(target, eventType, oldProps[key]);
-        }
-        addEvent(target, eventType, value);
-      }
-    } else {
-      target.setAttribute(key, value);
+  // 4. 새 속성 추가/수정
+  Object.keys(newProps).forEach((key) => {
+    const newValue = newProps[key];
+    const oldValue = oldProps[key];
+
+    // 값이 같으면 건너뛰기
+    if (newValue === oldValue) return;
+
+    // 이벤트 처리
+    if (key.startsWith("on")) {
+      handleEvent(target, key, newValue, oldValue);
+    }
+    // 일반 속성 처리
+    else {
+      target.setAttribute(getHtmlAttrName(key), newValue);
     }
   });
 }
