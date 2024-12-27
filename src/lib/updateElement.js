@@ -2,6 +2,11 @@ import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
 function updateAttributes(target, newProps = {}, oldProps = {}) {
+  // null이나 undefined인 경우 빈 객체로 처리
+  oldProps = oldProps || {};
+
+  newProps = newProps || {};
+
   // 이전 속성 제거
   Object.keys(oldProps).forEach((key) => {
     if (key === "className") {
